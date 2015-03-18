@@ -3,7 +3,7 @@ import WithConfigMixin from 'ember-idx-utils/mixin/with-config'
 
 /**
  * Button component
- * 
+ *
  * Styled button with async support.
  *
  * @class Button
@@ -24,7 +24,7 @@ export default Em.Component.extend(WithConfigMixin, {
    * @property attributeBindings
    * @private
    */
-  attributeBindings: ['disabled', 'state'],
+  attributeBindings: ['disabled', '_state:state'],
 
   /**
    * Bind the specified properties as the classes of the DOM element.
@@ -36,7 +36,7 @@ export default Em.Component.extend(WithConfigMixin, {
    * @property disabled
    * @public
    */
-  disabled: Em.computed.equal('state', 'executing'),
+  disabled: Em.computed.equal('_state', 'executing'),
 
   /**
    * The state of the button, can be one of the following:
@@ -48,13 +48,13 @@ export default Em.Component.extend(WithConfigMixin, {
    * The state is also bound to the DOM as `state` property, this allows to easily change styles for every
    * state by using `.em-button[state=resolved]` syntax.
    *
-   * The label of the button will change to the value of the component properties that correspond to the 
+   * The label of the button will change to the value of the component properties that correspond to the
    * states mentioned above.
    *
-   * @property state
+   * @property _state
    * @private
    */
-  state: 'default',
+  _state: 'default',
 
   /**
    * The action name to invoke on the controller when the button is clicked.
@@ -71,9 +71,9 @@ export default Em.Component.extend(WithConfigMixin, {
    */
   'icon-classes': (function() {
     var propName;
-    propName = "icon-" + this.state;
+    propName = "icon-" + this._state;
     return this.getWithDefault(propName, this.get('icon-default'));
-  }).property('state', 'icon-default', 'icon-executing', 'icon-resolved', 'icon-rejected'),
+  }).property('_state', 'icon-default', 'icon-executing', 'icon-resolved', 'icon-rejected'),
 
   /*
    * The label of the button, calculated according to the state of the button
@@ -82,8 +82,8 @@ export default Em.Component.extend(WithConfigMixin, {
    * @private
    */
   label: (function() {
-    return this.getWithDefault(this.state, this.get('default'));
-  }).property('state', 'default', 'executing', 'resolved', 'rejected'),
+    return this.getWithDefault(this._state, this.get('default'));
+  }).property('_state', 'default', 'executing', 'resolved', 'rejected'),
 
   /**
    * Set by the `onClick` callback, if set, the promise will be observed and the button's state will be
@@ -105,25 +105,25 @@ export default Em.Component.extend(WithConfigMixin, {
     this.sendAction('on-click', (function(_this) {
       return function(promise) {
         _this.set('promise', promise);
-        return _this.set('state', 'executing');
+        return _this.set('_state', 'executing');
       };
     })(this));
     return false;
   }).on('click'),
 
   /*
-   * Observes the promise property 
+   * Observes the promise property
    * @property changeStateByPromise
    * @private
    */
   changeStateByPromise: (function() {
     return this.get('promise').then((function(_this) {
       return function() {
-        return _this.set('state', 'resolved');
+        return _this.set('_state', 'resolved');
       };
     })(this), (function(_this) {
       return function(err) {
-        _this.set('state', 'rejected');
+        _this.set('_state', 'rejected');
         return _this.set('error', err);
       };
     })(this));
